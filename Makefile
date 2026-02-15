@@ -30,10 +30,10 @@ TOOLDIR = ${LLVM_BUILDDIR}/bin
 
 RM = rm
 RMDIR = rmdir
-CMAKE = cmake3
-NINJA = ninja-build
-COMPILE_THREADS = 6
-LINK_THREADS = 3
+CMAKE = cmake
+NINJA = ninja
+COMPILE_THREADS = 12
+LINK_THREADS = 1
 CLANG = ${DEST}/bin/clang
 
 all: check-source cmake install
@@ -87,10 +87,10 @@ install-debug:
 	make LLVM_BUILDDIR=${LLVMDBG_BUILDDIR} DEST=${DBG_DEST} \
 	    BUILD_TYPE=Debug ${MFLAGS} install
 
-check-llvm: build
+check-llvm:
 	cd ${LLVM_BUILDDIR} && ${NINJA} -j${COMPILE_THREADS} check-llvm
 
-check-clang: build
+check-clang:
 	cd ${LLVM_BUILDDIR} && ${NINJA} -j${COMPILE_THREADS} check-clang
 
 # This target is not working at the moment since we don't
