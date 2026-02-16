@@ -36,6 +36,12 @@ COMPILE_THREADS = 12
 LINK_THREADS = 1
 CLANG = ${DEST}/bin/clang
 
+SIF = ${LLVM_DEV_DIR}/centos7-ve-llvm-build_latest.sif
+APPTAINER_EXEC = apptainer exec --bind ${LLVM_DEV_DIR}:${LLVM_DEV_DIR} ${SIF}
+
+container-%:
+	${APPTAINER_EXEC} make -C ${LLVM_DEV_DIR} $*
+
 all: check-source cmake install
 
 check-source:

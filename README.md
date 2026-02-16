@@ -8,158 +8,93 @@ LLVM for VE requires multiple libraries' cross-compile.  Those are little
 difficult to handle at the beginning.  So, I made this easy to use developing
 environment.
 
-These are quick steps to compile LLVM for VE.  However, if you are going
-to work on LLVM for VE, I recommend to use `make` directly like explained
-later.
-
-Quick step
-=========================
-
-    $ git clone <llvm-project>
-    $ git clone <llvm-dev>
-    $ scl enable devtoolset-8 bash
-    $ ./llvm-dev/build-and-install.sh <install directory>
-
-llvm is built in `build` directory and installed to `<install direcotry>`.
-You can change the directories and build type as below.
-
-    $ SRCDIR=<path to llvm-project> BUILDDIR=build-debug BUILD_TYPE=Debug ./llvm-dev/build-and-install.sh ~/.local-debug
+All build operations are performed inside an Apptainer container.
+The `make container-<target>` command runs `make <target>` inside
+the container, so you don't need to install any build tools on
+your host system.
 
 Prerequisites
 =============
 
-  - cmake (cmake3 in RHEL7)
-  - ninja (ninja-build in RHEL7)
-  - gcc 5.1 or above (devtoolset-8 in RHEL7)
+Install Apptainer and pull the build container into this directory:
 
-Repositories
-============
-
-We maintain multiple repositories, one for public and one for internal.
-We prepare multiple branches for multiple repositoris, so please clone
-correct one.
-
-    $ git clone <this repository>
+    $ apptainer pull docker://jam7/centos7-ve-llvm-build:latest
 
 Prepare source codes
 ====================
 
-There are two ways to clone source code, shallow one and deep one.  If
-you simply want to git it try, please use shallow one.  If you are
-developing for LLVM for VE, please use deep one.  Recent git, 1.9 or
-above, allows fetch and push to/from shallow repositories, so shallow
-may work for developing.
+Clone the llvm-project source code.  Use shallow clone if you simply
+want to give it a try, or deep clone if you are developing for LLVM
+for VE.
 
     $ make shallow
-    $ ls llvm
 
 or
 
     $ make deep
-    $ ls llvm
 
-Compile and install
-===================
+Quick start
+===========
 
-Compile clang/llvm for VE, install clang/llvm under ./install directory,
-cross-compile libraries using installed clang/llvm for VE, and install
-generated cross-compiled libraries under ./install directory by following
-command.
+Configure, build, and install clang/llvm for VE:
 
-    $ scl enable devtoolset-8 bash   # enable latest gcc on RHEL7
-    $ make
+    $ make container-cmake
+    $ make container-install
 
-You can install everything to your favorite place by following command.
+llvm is built in `build` directory and installed to `./install`.
+You can change the install directory:
 
-    $ make DEST=~/.local             # need to use an absolute path
+    $ make container-install DEST=~/.local   # need to use an absolute path
 
 Compile without installation
 ============================
 
-You can compile clang/llvm without installation by following command.
+You can compile clang/llvm without installation:
 
-    $ scl enable devtoolset-8 bash   # enable latest gcc on RHEL7
-    $ make build
-
-Clang/llvm requires installed header files, so please install them
-by following command before use them.
-
-    $ make install
+    $ make container-build
 
 Compile Bootstrapping
 =====================
 
-Compile clang/llvm for X86/VE, compile/cross-compile libraries for X86 and VE
-using the compiled clang/llvm for X86/VE.  And install them to DEST directory
-by following command.
+Compile clang/llvm for X86/VE, compile/cross-compile libraries for
+X86 and VE, and install them to DEST directory:
 
-    $ scl enable devtoolset-8 bash   # enable latest gcc on RHEL7
-    $ make DEST=~/.local ve          # need to use an absolute path
+    $ make container-ve DEST=~/.local   # need to use an absolute path
 
 Compile for distribution
 ========================
 
-Compile clang/llvm for X86/VE, compile/cross-compile libraries for X86 and VE
-using the compiled clang/llvm for X86/VE.  And install stripped them to ./dist
-directory by following command.
+Compile clang/llvm for X86/VE, compile/cross-compile libraries for
+X86 and VE, and install stripped binaries to `./dist` directory:
 
-    $ scl enable devtoolset-8 bash   # enable latest gcc on RHEL7
-    $ make dist
+    $ make container-dist
 
 Debug mode compile
 ==================
 
-Compile clang/llvm in debug mode by following command.  Compiled
-clang/llvm are left in independent directory named build-debug.
+Compile clang/llvm in debug mode.  Compiled clang/llvm are left in
+`build-debug` directory:
 
-    $ scl enable devtoolset-8 bash   # enable latest gcc on RHEL7
-    $ make build-debug
+    $ make container-build-debug
 
-Debug mode everything
-=====================
+It is also possible to compile and install everything under debug mode:
 
-It is also possible to compile and install everything under debug mode
-by following command.
-
-    $ scl enable devtoolset-8 bash   # enable latest gcc on RHEL7
-    $ make clean                     # remove compiled binaries first
-    $ make BUILD_TYPE=Debug
-
-Update sources
-==============
-
-You can update your deep cloned source code by following commands.
-This simply performs "git fetch origin develop:develop -u" on each
-subdirectory.  You may see errors if you modified local develop
-branch.  Please fix such problems by yourself.
-
-    $ make deep-update
-
-You can update your shwllow cloned source code by following commands.
-This may overwrite your modified $BRANCH branch.  Please be careful
-before use this.  If you have a problem with this command,
-"git reflog" is your friend.
-
-    $ make shallow-update BRANCH=github_release_20190212
+    $ make container-clean
+    $ make container-cmake BUILD_TYPE=Debug
+    $ make container-install BUILD_TYPE=Debug
 
 Run tests
 =========
 
-Tests are never executed by above commands.  It is required to
-run them explicitly like below if you want to perform tests.
+Tests are not executed by above commands.  Run them explicitly:
 
-You can test compiled clang by following command.
+    $ make container-check-llvm
+    $ make container-check-clang
 
-    $ make check-clang
+You can test cross-compiled libraries on VE:
 
-You can test compiled llvm by following command.
-
-    $ make check-llvm
-
-You can test cross-compiled libraries on VE by following command.
-
-    $ make check-libunwind
-    $ make check-libcxxabi
-    $ make check-libcxx
-    $ make check-openmp
+    $ make container-check-libunwind
+    $ make container-check-libcxxabi
+    $ make container-check-libcxx
+    $ make container-check-openmp
 
