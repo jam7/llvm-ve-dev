@@ -2,9 +2,6 @@ THIS_MAKEFILE_PATH = $(abspath $(lastword $(MAKEFILE_LIST)))
 # LLVM_DEV_DIR requires to use an abosolute path
 LLVM_DEV_DIR = $(abspath $(dir ${THIS_MAKEFILE_PATH}))
 
-# Retrieve all sources from this repo's parent
-REPO = $(dir $(shell cd ${LLVM_DEV_DIR} && git config remote.origin.url))
-BRANCH = develop
 BUILD_TYPE = Release
 X86_TRIPLE = x86_64-unknown-linux-gnu
 VE_TRIPLE = ve-unknown-linux-gnu
@@ -124,22 +121,6 @@ libomptarget:
 	    ${LLVM_DEV_DIR}/scripts/cmake-libomptarget.sh
 	cd ${LIBOMPTARGET_BUILDDIR} && ${NINJA} -j${COMPILE_THREADS} install
 
-shallow:
-	REPO=${REPO} BRANCH=${BRANCH} SRCDIR=${SRCDIR} \
-	    ${LLVM_DEV_DIR}/scripts/clone-source.sh --depth 1
-
-deep:
-	REPO=${REPO} BRANCH=${BRANCH} SRCDIR=${SRCDIR} \
-	    ${LLVM_DEV_DIR}/scripts/clone-source.sh
-
-shallow-update:
-	BRANCH=${BRANCH} SRCDIR=${SRCDIR} \
-	    ${LLVM_DEV_DIR}/scripts/update-source.sh --depth 1
-
-deep-update:
-	BRANCH=${BRANCH} SRCDIR=${SRCDIR} \
-	    ${LLVM_DEV_DIR}/scripts/update-source.sh
-
 clean:
 	${RM} -rf ${LLVM_BUILDDIR} ${LLVMDBG_BUILDDIR} ${DEST}
 	-${RMDIR} ${BUILDDIR}
@@ -149,5 +130,5 @@ distclean: clean
 
 FORCE:
 
-.PHONY: FORCE shallow deep clean dist clean check-source cmake build install \
+.PHONY: FORCE check-source cmake build install clean dist \
 	build-debug install-debug installall

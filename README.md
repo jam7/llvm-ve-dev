@@ -23,15 +23,10 @@ Install Apptainer and pull the build container into this directory:
 Prepare source codes
 ====================
 
-Clone the llvm-project source code.  Use shallow clone if you simply
-want to give it a try, or deep clone if you are developing for LLVM
-for VE.
+Clone your llvm-project repository and place it as `llvm-project`
+in this directory:
 
-    $ make shallow
-
-or
-
-    $ make deep
+    $ git clone <your-llvm-project-repo> llvm-project
 
 Quick start
 ===========
