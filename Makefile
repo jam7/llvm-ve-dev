@@ -102,6 +102,9 @@ check-llvm:
 check-clang:
 	cd ${LLVM_BUILDDIR} && ${NINJA} -j${COMPILE_THREADS} check-clang
 
+check-lld:
+	cd ${LLVM_BUILDDIR} && ${NINJA} -j${COMPILE_THREADS} check-lld
+
 # This target is not working at the moment since we don't
 # enable sanitizer for VE yet.
 check-compiler-rt: build
