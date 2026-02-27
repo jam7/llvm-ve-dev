@@ -130,6 +130,9 @@ libomptarget:
 	    ${LLVM_DEV_DIR}/scripts/cmake-libomptarget.sh
 	cd ${LIBOMPTARGET_BUILDDIR} && ${NINJA} -j${COMPILE_THREADS} install
 
+clean-runtime:
+	cd ${LLVM_BUILDDIR} && ${NINJA} -j${COMPILE_THREADS} runtimes/builtins-ve-unknown-linux-gnu-clean runtimes/runtimes-ve-unknown-linux-gnu-clean
+
 clean:
 	${RM} -rf ${LLVM_BUILDDIR} ${LLVMDBG_BUILDDIR} ${DEST}
 	-${RMDIR} ${BUILDDIR}
